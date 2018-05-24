@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta charset="utf-8" />
+	<title>田字格字帖生成器</title>
+	<style>
+		body,
+		div,
+		p,
+		ul,
+		li {
+			padding: 0;
+			margin: 0;
+			list-style: none;
+		}
+
+		div {
+			width: 938px;
+			margin: 0 auto;
+			padding-left: 2px;
+		}
+
+		li {
+			float: left;
+			width: 80px;
+			height: 80px;
+			font-family: "楷体", "楷体_gb2312";
+			font-size: 58px;
+			text-align: center;
+			line-height: 85px;
+			background: url(images/bg12.jpg);
+			margin: 4px 0px 5px -2px;
+			color: #b8b8b8;
+		}
+
+		li.f {
+			color: #000;
+			/**margin-left: -0px*/
+		}
+
+		li.svg {
+			line-height: 72px;
+		}
+
+		li svg {
+			margin: 8px;
+			vertical-align: middle;
+		}
+
+		.afterpage {
+			page-break-after: always;
+		}
+
+		@media print {
+			li {
+				background: url(images/bg12.jpg);
+			}
+			.afterpage {
+				page-break-after: always;
+			}
+			.noprint {
+				display: none;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div>
+		<div class="noprint">
+			<textarea id="to_print" style='margin: 0px; width: 930px; height: 175px'></textarea>
+			<div style='align-items:center; margin: 0px; width: 930px; height: 20px'>
+				<input type="submit" onclick='onclick_gen();' value="生成" />
+				<input type="submit" onclick='window.print();' value="打印" />
+			</div>
+		</div>
+		<ul id="u_printf">
+		</ul>
+	</div>
+	<script id="myword" charset="UTF-8" src="mwords.json"></script>
+	<script>
+		console.log(words["舨"]);
+		let template_li = '<li class="svg"><svg width="54" height="54" version="1.1" xmlns="http://www.w3.org/2000/svg">##paths##</svg></li>';
+		let empty_li1 = '<li class="f">&nbsp;</li>';
+		let empty_li2 = '';
+		for (let i = 0; i < 11; i++) { empty_li2 += "<li>&nbsp;</li>" }
+		let first_paths = '<path d="##path_d##" style="fill:rgb(0,0,0);stroke:rgb(0,0,0);" stroke-width="1.5"></path>';
+		let second_paths = '<path d="##path_d##" style="fill:rgb(184,184,184);stroke:rgb(184,184,184);" stroke-width="1.6"></path>';
+		second_paths = '<path d="##path_d##" style="fill:rgb(184,184,184);stroke:#999;" stroke-width="1.6"></path>';
+		let d_key = '##path_d##';
+		let p_key = '##paths##';
+		u_printf.innerHTML = "";
+		let preview = (c) => {
+
+			let pre_li = "";
+
+			ds = words[c];
+			if (!ds) {
+				return;
+			}
+			len = ds.length;
+			f_path = "";
+			for (let j = 0; j < len; j++) {
+				f_path += first_paths.replace(d_key, ds[j]);
+			}
+			pre_li = template_li.replace(p_key, f_path);;
+
+			return pre_li;
+		};
+		let practice = (c) => {
+			ds = words[c];
+			if (!ds) {
+				return;
+			}
+			len = ds.length;
+			let bihua_li = "";
+			let s_path = "";
+			for (let bihua = 0; bihua < len; bihua++) {
+				s_path = "";
+				for (let i = 0; i <= bihua; i++) {
+					s_path += second_paths.replace(d_key, ds[i]);
+				}
+				bihua_li += template_li.replace(p_key, s_path);
+			}
+			for (let i = 0; i < 23 - len; i++) {
+				bihua_li += template_li.replace(p_key, s_path);
+			}
+			bihua_li += empty_li1;
+			bihua_li += empty_li2;
+
+			return bihua_li;
+		}
+		let print_char = (c) => {
+			return preview(c) + practice(c);
+		}
+		let print_sentence = (s) => {
+			sen_li = "";
+			for (let i in s) {
+				sen_li += print_char(s[i]);
+			}
+			return sen_li;
+		}
+
+
+		onclick_gen = () => {
+			u_printf.innerHTML = "";
+
+			lis = print_sentence(to_print.value.replace(/ /g,"").trim());
+			u_printf.innerHTML = lis;
+		}
+	
+	</script>
+</body>
+
+</html>
